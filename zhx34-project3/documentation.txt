@@ -1,0 +1,344 @@
+                                           Documentation 
+Introduction 	
+	The reason that I choose to use double priority is satisfying the runtime requirement. The runtime for add, 
+	remove, and retrieve should all be logarithmic. Therefore, working with double indexable priority queue will
+	waste some space but can satisfy the runtime requirement. I use 4n space in order to satisfy the run time 
+	requirement. 2 priority queues and 2 hashMaps. There are two indexable priority queue stored inside the program. 
+	Therefore, I need to control two independent variable every time I work with add and delete method. The add method 
+	is 2*O(log n). I choose to use HashMap for the whole project, because the runtime for add and remove from a HashMap 
+	is O(1) overall. Therefore, in order to satisfy the overall run time to add, remove, retrieve the lowest price, 
+	mileage for all car, and based on make and model. HashMap is one of the best way to do this project. I used minimum 
+	indexable priority for this project. Therefore, when I want to retrieve the lowest price or mileage of the cars. 
+	The runtime of that will be O(1). The reason is it returns the first one inside the array with the car-info. 
+	I developed two car-info array and two hashMap in this project in order to satisfy the runtime requirement, 
+	and also this way makes the project more straightforward. The run time for add is O(log n) + O(log n), 
+	because when we want to add the item inside the car array, it may require to add into both priceArray and 
+	mileageArray. Therefore, the run time for both adding inside the array will be O(Log n). Therefore, the run 
+	time will be 2*O(log n). It satisfies the logarithmic runtime. This approach also satisfies the remove approach 
+	and update approach. As for retrieve the lowest price or lowest mileage with make and model method. The runtime 
+	is also logarithmic. 
+
+1. CarInfo.java
+This class is being applied to get the specific information which stored inside the CarArray. 
+There are 6 getters and 6 setters inside the class. 
+getVin()
+getMake()
+getModel()
+getPrice()
+getMileage()
+getColor()
+Those methods are applied to get the specific information stored inside the cars. They are applied when retrieve 
+methods are being called. And the testing method that I write in order to check I add and remove the car with vin 
+number worked properly. 
+setVin()
+setMake()
+setModel()
+setPrice()
+setMileage()
+setColor()
+Those methods are applied to set the specific information stored inside the cars. They are applied when update 
+methods are being called, because we need to set the new information based on the user input.
+toString() 
+This method is the method that I write in order to check the program that I do the project correctly. 
+
+2. PriorityQueue.java
+I use double indexable priority Queue inside this project one is for price and the other is for mileage.
+    CarInfo[] carsWithPrice; 
+	CarInfo[] carsWithMileage;  
+I also use double hashmap inside this project which map to the carsWithPrice, and the other maps to carsWithMileage. 
+    HashMap<String, Integer> indexPrice;
+	HashMap<String, Integer> indexMileage;  
+Therefore, the space that I use is O(4n). 
+HashMap is a data structure with the mininum run time. The runtime for finding, adding, removing from the hashMap is O(1). 
+I also use the indexable priority queue for this program. Therefore, I can create a hashMap contains the name of the object
+(which is the VIN number of the car) and the index (the current position of the car inside the array). This approach can 
+help me get the O(1) runtime for finding, adding, and removing a car from the array and hashMap. 
+
+i) Adding a Car: 
+    The first condition that I use to check for adding a car method is whether the car is already exists inside the 
+	program. I use indexPrice.contains(Vin number) to check whether the car has already existed inside the program.
+	If the car has already exists inside the program, I will print out a wrong message for the user that 
+	"The car with the input VIN number has already existed". 
+
+	Then I will check whether the array that I set up at the beginning has been used up.
+		if(size == carsWithPrice.length){
+            resizeArray(); 
+        }
+	I only need to check carsWithPrice.length, because the carsWithMileage and carsWithPrice should all be the same size 
+	everytime 
+
+	Finally, I will jump to the condition that add a car into the program. I use double PriorityQueue for this project. 
+    Therefore, everytime that I add or remove a car from the program I need to control two independent variables. I add 
+	at the end of the array. Therefore, the added object should swim inside the array in order to find out the suitable 
+	position. At the beginning, i will put the current index into the hashMap. After finishing swim function. I will 
+	update the most recent index of the object inside the array. 
+		public static void swim_with_price(int index){
+			while(index > 0 && lowerPrice(index, (index-1)/2)){
+				changePosition(carsWithPrice, indexPrice, index, (index-1)/2); 
+				index = (index-1)/2; 
+			}
+		}
+
+		public static void changePosition(CarInfo[] Cars, HashMap<String, Integer> indexCars, int children, int Parent){
+			CarInfo current = Cars[children];
+			Cars[children] = Cars[Parent]; 
+			Cars[Parent] = current; 
+			indexCars.replace(Cars[children].getVin(), Integer.valueOf(children)); 
+			indexCars.replace(Cars[Parent].getVin(), Integer.valueOf(Parent));  
+		}
+	for example, if we have 6 cars inside the PriorityQueue, the price for the cars are [500, 600, 800, 700, 900, 850]. 
+	At this moment you want to add a car with 300 into the program. The the swim method will compare this price with 
+	the price of the cars at index 3. We realize 800>300. Then we swap the order of the PriorityQueue array and also 
+	change the index value which stored in the hashMap. Then we compare 300 at index 2 with 500 at index 0. Then we 
+	realize the 500 is also less than 300. Then we swap the order again. The original array will change to 
+	[300,500,600,800,700,900 850]
+	The runtime for change the position is contant runtime. The runtime for compare the price is also constantly. 
+	Also, the worst case runtime for swim method is O(log n). Therefor, the overall runtime for the program is O (log n). 
+
+ii) Updating a car 
+	i) update a price 
+		If I update a price for a car, firstly, I need to check whether the input VIN number is valid. 
+			public static void find_Car_With_VIN(){
+				System.out.print("Please enter the VIN number here in order to continue : "); 
+				VIN = scanner.next().toUpperCase(); 
+				boolean search; 
+				search = PriorityQueue.search_with_VIN(VIN); 
+				while(!search){
+					System.out.println("Sorry! We cannot find the car associate with the VIN number that you input!"); 
+					System.out.print("Please enter the VIN number of the car that you want to update: "); 
+					VIN = scanner.next().toUpperCase();  
+					search = PriorityQueue.search_with_VIN(VIN); 
+				}
+		    }
+		If the input vin number is not valid. The program will continuously asked you about the correct VIN number until
+		you input a valid VIN number. 
+			public static boolean update_Price(String VINnumber, int price){
+				Integer position = indexPrice.get(VINnumber); 
+				Integer position2 = indexMileage.get(VINnumber);  
+				int index = position.intValue(); 
+				int index2 = position2.intValue(); 
+				//System.out.println("At index:" + index); 
+				boolean setPrice = carsWithPrice[index].setPrice(price); 
+				boolean setPrice_in_Mileage = carsWithMileage[index2].setPrice(price); 
+				if(!setPrice){
+					System.out.println("Something goes wrong, you cannot update a price for a car!"); 
+					return false; 
+				}
+				swim_with_price(index);
+				sink_with_price(index); 
+				return true; 
+			}
+		The inside the program of updating the price for the car. firstly, it need to update the current price of the
+		car in the indexable priority queue. I use the double PriorityQueue inside the program. Therefore, I also need
+		to update the price for the milage array. However, I do not need to change the position for the mileage 
+		PriorityQueue. I just need to update the price stored inside the program. Updating a car price not only require
+		swim with the array, but also sank with the array. For example we have a array with [300,500,600,800,700,900 850]. 
+		We want to update the price for 600 to 1000. firstly, we check whether it need to swim inside the array. However, 
+		we realize 600 > 300. Therefore, we go to the sank function. 
+			public static void sink_with_price(int index){
+				while( (2*index + 1) < size){
+					//System.out.println("here"); 
+					int childONE = 2*index + 1; 
+					int childTWO = 2*index + 2; 
+					boolean child_is_lower; 
+					if(childTWO < size){
+						boolean childOne_greater_than_carTWO = compareChildPrice(childONE, childTWO); 
+						if(childOne_greater_than_carTWO){
+							child_is_lower = lowerPrice(childTWO, index); 
+							if(child_is_lower){
+								//System.out.println("SINK WITH PRICE"); 
+								changePosition(carsWithPrice, indexPrice, childTWO, index);
+								index = childTWO; 
+								continue; 
+							}
+							else break; 
+						}
+					}
+					child_is_lower = lowerPrice(childONE, index); 
+					if(child_is_lower){
+						changePosition(carsWithPrice, indexPrice, childONE, index);
+					}
+					if(!child_is_lower) break; 
+					//changePosition(carsWithPrice, indexPrice, childONE, index);
+					index = childONE; 
+					
+				}
+		    }
+		Then, we need to find whether 600 has "children". We realize 900 and 850 are childONE and childTWO for 600. 
+		After changing 600 to 1000. 1000 greater than both 900 and 850. Then, we swap the order of 1000 with 850. 
+		Finally, the array looks like [300,500,850,800,700,900, 1000].
+		The worst case runtime for sink method is O(log n). the runtime for swim program is O (log n). Therefore, 
+		the overall runtime is O(log n) + O(log n) = O(log n). 
+
+	ii) update the mileage of a car
+	   the idea for update the mileage of a car is pretty similar toupdate the price of a car. 
+	   The runtime is also O(log n)
+	
+	iii) update the color of a car
+	   the runtime for updating the color of a car is O(1). When the user input the vin number of the car. They will be 
+	   asked what information they want to update for a car. If they enter want to update the color of the car. The 
+	   prigram will find the index of the car from the hashMap with runtim O(1). Then at that index, the PriorityQueue 
+	   program will call setColor() method at the CarInfo class to set the new color of the car. Therfore, the overall
+	   runtime is O(1). 
+
+iii) Removing a car 
+    the idea for desgining remove a car approach is pretty similar to add a car approach. first, the program will check 
+	whether the car exists inside the program. If the program realizes that the user input VIN number not existes inside
+	the hashMap, then the program will print out a wrong message for the user. 
+		public static boolean remove_Car_price(String VIN){
+			Integer position = indexPrice.get(VIN); 
+			int index = position.intValue(); 
+			if(index == size){
+				indexPrice.remove(VIN); 
+				carsWithPrice[size] = null; 
+				return true; 
+			}
+			changePosition(carsWithPrice, indexPrice, index, size);
+			carsWithPrice[size] = null; 
+
+			indexPrice.remove(VIN); 
+			swim_with_price(index);
+			sink_with_price(index);
+			return true; 
+		}
+	then the program will check whether the car existes at the end of the array. If so, the program will remove the 
+	car from array and hashMap with O(1) runtime. This is the best case for removing a car. If not, the program will
+	update the current price for that car and use swim and sink methods to check whether is the correct positon for 
+	the car in the PriorityQueue array. The overall runtime is similar to the update price or mileage for a car. 
+	Therefore, the runtime is O(log n). 
+
+iv) retrieve the car with lowest price
+    I apply indexiable minimum PriorityQueue inside the program. Therefor the approach for retrieve the lowest price 
+	car is return the index 0 car inside the PriorityQueue array. The runtime should be O(1) overall. 
+
+v) retrieve the car with lowest mileage
+    smiilar approach for the price. The runtime will be O(1) overall. 
+
+vi) retrieve the car with the lowest price with make and model 
+	I use the recursive method for this part. 
+	The base case condition is carsWithPrice[position].getMake().equals(make) && carsWithPrice[position].getModel().
+	equals(model) When the program find this condition. It will automatically stop and return the price or the mileage 
+	for me. However, before jump into the recursive case. The program will check whether the index has already exceed 
+	the size of the array. Therefore, the runtime for applying recursive method for this part is also O(log n) for the
+	worst case. Therefor the runtime for retrieve left child is O(log n), and the runtime for retrieve the right child
+	is O(log n). Therefore, the overall runtime will be O(2 log n). overall, the runtime will be O(log n). 
+		public static CarInfo retrive_priceCar_with_Make_Model(int position, String make, String model){
+			if(position >= size){
+				return null; 
+			}
+			if(carsWithPrice[position] == null){
+				return null;
+			}
+			if(carsWithPrice[position].getMake().equals(make) && carsWithPrice[position].getModel().equals(model)){
+				return carsWithPrice[position]; 
+			}
+			else{
+				CarInfo left = retrive_priceCar_with_Make_Model(2*position + 1, make, model); 
+				CarInfo right = retrive_priceCar_with_Make_Model(2*position + 2, make, model); 
+				if(left == null && right == null) return null; 
+				else if(right == null) return left; 
+				else if(left == null) return right; 
+				else{
+					if(left.getPrice() < right.getPrice()){
+						return left; 
+					}
+					return right; 
+				}
+			}
+		}
+vii) retrieve the car with the lowest mileage with make and model 
+    similar approach for retrieve the car with the lowest price with make and model 
+
+3. CarTracker.java
+This is the main class for the whole project. The user input menu looks like 
+
+	Welcome to CarTracker by Zhuofei(zhx34): 
+	1. Add a Car
+	2. Update a car information
+	3. Removing a specific car from your consideration
+	4. Retrieve the lowest price car
+	5. Retrieve the lowest mileage car
+	6. Retrieve the lowest price car by make and model
+	7. Retrieve the lowest milage car by make and model
+
+	Enter '8' to exit the program
+	----------------------------------------------------
+	Please enter your selection(from 1 to 7)
+
+When you enter 8. The program will automatically exit. 
+
+i) add a car
+    ******* Add a Car *********
+    Please enter the VIN Number: katlin
+	Please enter the Make: toyput
+	Please enter the Model: pitt
+	Please enter the Price: 1
+	Please enter the Mileage: 1
+	Please enter the Color: pink
+
+ii) update a car info
+    Please enter your selection(from 1 to 7)2
+	Please enter the VIN number here in order to continue : katlin
+	********** update a car info **********
+	What would you like to update?
+		<1> The price of the car
+		<2> The mileage of the car
+		<3> The color of the car
+	Your choice (1 to 3): 1
+	Please enter the price of the car: 1000
+	You have successfully update a price for the car!!!!
+
+iii) remove a car
+	Please enter your selection(from 1 to 7)3
+	******* Remove a Car *********
+	Please enter the VIN number here in order to continue : katlin
+	Are you sure to remove the car?(enter 'y' to continue) y
+	The car has been removed successfully!
+
+vi) retrieve the car with lowest price
+	Please enter your selection(from 1 to 7)4
+	******* Retrieve the Car with lowest price *********
+	$$ This is the car with the lowest price $$
+	The VIN number is 6C21HJH4H94PLDFDR
+	The make is SUBARU
+	The model is BRZ
+	The price is $5076
+	The mileage is 79527
+	The color is BROWN
+
+v) retrieve the car with lowest mileage
+	Please enter your selection(from 1 to 7)5
+	******* Retrieve the Car with lowest mileage *********
+	$$ This is the car with the lowest mileage $$
+	The VIN number is UPFDRHTJFLLU81HD3
+	The make is LEXUS
+	The model is LS
+	The price is $9180
+	The mileage is 1328
+	The color is ORANGE
+
+vi) Retrieve the lowest price car by make and model
+	Please enter your selection(from 1 to 7)6    
+	******* Retrieve the Car with lowest price with make and model *********
+	Please enter the make of the car: honda
+	Please enter the model of the car: cr-v
+	$$ This is the car with the lowest price with make and model $$
+	The VIN number is CZYV3HEPJPM1GU35T
+	The make is HONDA
+	The model is CR-V
+	The price is $6147
+	The mileage is 7745
+	The color is BLACK
+
+vii) Retrieve the lowest milage car by make and model
+	Please enter your selection(from 1 to 7)7
+	******* Retrieve the Car with lowest mileage with make and model *********
+	Please enter the make of the carhonda 
+	Please enter the model of the carcr-v
+	$$ This is the car with the lowest price with make and model $$
+	The VIN number is CZYV3HEPJPM1GU35T
+	The make is HONDA
+	The model is CR-V
+	The price is $6147
+	The mileage is 7745
+	The color is BLACK
